@@ -45,7 +45,6 @@ const Login = () => {
   // get registered user
   useEffect(() => {
     setUsers(JSON.parse(localStorage.getItem('users') || '[]'));
-    console.log(users);
   }, []);
 
   return (
