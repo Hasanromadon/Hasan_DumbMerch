@@ -1,16 +1,20 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import NavbarAdmin from '../components/NavbarAdmin';
 import NavbarLayout from '../components/NavbarLayout';
+import { UserContext } from '../context/user/UserContext';
 
-const Layout = ({ children, playAnimateCart }) => {
-  const user = { role: 'user' };
+const Layout = ({ children, playAnimateCart, handleSearchSubmit }) => {
+  const [state, dispatch] = useContext(UserContext);
 
   return (
     <>
-      {user.role === 'admin' ? (
+      {state.user && state.user.role === 'admin' ? (
         <NavbarAdmin />
       ) : (
-        <NavbarLayout playAnimateCart={playAnimateCart} />
+        <NavbarLayout
+          handleSearchSubmit={handleSearchSubmit}
+          playAnimateCart={playAnimateCart}
+        />
       )}
       {children}
     </>

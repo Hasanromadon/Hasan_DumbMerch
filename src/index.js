@@ -4,13 +4,21 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.scss';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import store from './store';
+
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { UserContextProvider } from './context/user/UserContext';
+
+const client = new QueryClient();
+
 ReactDOM.render(
-  <Provider store={store}>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </Provider>,
+  <React.StrictMode>
+    <UserContextProvider>
+      <QueryClientProvider client={client}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </QueryClientProvider>
+    </UserContextProvider>
+  </React.StrictMode>,
   document.getElementById('root')
 );

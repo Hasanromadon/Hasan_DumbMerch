@@ -5,6 +5,9 @@ import Layout from '../../hoc/Layout';
 import Lottie from 'react-lottie';
 import ButtonDumbMerch from '../../components/ButtonDumbMerch';
 const PaymentSucess = () => {
+  const title = 'Payment Success';
+  document.title = 'DumbMerch | ' + title;
+
   const options = {
     animationData: paymentSuccess,
     loop: false,

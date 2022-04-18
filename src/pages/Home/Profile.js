@@ -3,6 +3,9 @@ import { Col, Container, Row } from 'react-bootstrap';
 import Layout from '../../hoc/Layout';
 
 const Profile = () => {
+  const title = 'Profile';
+  document.title = 'DumbMerch | ' + title;
+
   return (
     <Layout>
       <Container className="mt-4">

@@ -1,19 +1,22 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Accordion, Badge, Col } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
 import Collapsible from 'react-collapsible';
+import { UserContext } from '../context/user/UserContext';
 
 const SideNavAdmin = () => {
   const location = useLocation();
   const { pathname } = location;
   const splitLocation = pathname.split('/');
+  const [state, dispatch] = useContext(UserContext);
+
   return (
     <Col className="border-end border-dark border-2 me-3" md={3}>
       <div>
         <div className="mb-5 d-flex">
           <div>
             <p className="mb-0 fw-bold">Welcome!</p>
-            <p className="mb-0 fw-bold">Hasan Romadon</p>
+            <p className="mb-0 fw-bold">{state.user?.name}</p>
           </div>
         </div>
         <ul className="">

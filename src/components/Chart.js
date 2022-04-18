@@ -9,9 +9,8 @@ import {
   Legend,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import { faker } from '@faker-js/faker';
 
-const Chart = () => {
+const Chart = ({ reports }) => {
   ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -48,15 +47,26 @@ const Chart = () => {
     'December',
   ];
 
+  // let data = {
+  //   labels,
+  //   datasets: [
+  //     {
+  //       label: 'Revenue',
+  //       data: labels.map(() =>
+  //         faker.datatype.number({ min: 100000, max: 1000000 })
+  //       ),
+  //       backgroundColor: 'rgba(255, 99, 132, 0.5)',
+  //     },
+  //   ],
+  // };
+
   const data = {
-    labels,
+    labels: reports && reports.map((report) => labels[report.month - 1]),
     datasets: [
       {
         label: 'Revenue',
-        data: labels.map(() =>
-          faker.datatype.number({ min: 100000, max: 1000000 })
-        ),
-        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+        data: reports && reports.map((report) => report.total),
+        backgroundColor: 'rgba(255, 99, 132, 0.8)',
       },
     ],
   };

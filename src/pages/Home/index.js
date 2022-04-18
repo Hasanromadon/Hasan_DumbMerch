@@ -1,27 +1,31 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import ProductCard from '../../components/ProductCard';
 import Layout from '../../hoc/Layout';
 import productsData from '../../data/products';
-import { useDispatch, useSelector } from 'react-redux';
-import { getAllProducts } from '../../store/actions/productActions';
+import { UserContext } from '../../context/user/UserContext';
 
+import { useQuery } from 'react-query';
+import { API } from '../../config/api';
 const Home = () => {
-  const { allProducts } = useSelector((state) => state.products);
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(getAllProducts());
-  }, [dispatch]);
+  const title = 'Home';
+  document.title = 'DumbMerch | ' + title;
+
+  let { data: products, refetch } = useQuery('productsCache', async () => {
+    const response = await API.get('/products');
+    return response.data.data;
+  });
 
   return (
     <Layout>
       <Container className="mt-5">
         <h3>Products</h3>
         <Row className="g-3">
-          {allProducts.length !== 0 &&
-            allProducts.map((product) => (
-              <Col md={3} key={product.id}>
+          {products &&
+            products.length !== 0 &&
+            products.map((product) => (
+              <Col col={12} sm={6} md={3} key={product.id}>
                 <ProductCard product={product} />
               </Col>
             ))}
@@ -40,16 +44,18 @@ const Home = () => {
         <Row className="gx-3 gy-5">
           <Col md={3}>
             <img
-              className="special-promo d-block"
+              className="special-promo d-block img-fluid"
               src="/assets/images/ramadhan-sale.png"
               alt=""
             />
           </Col>
-          {productsData.map((product) => (
-            <Col md={3} key={product.id}>
-              <ProductCard product={product} />
-            </Col>
-          ))}
+          {products &&
+            products.length !== 0 &&
+            products.map((product) => (
+              <Col col={12} sm={6} md={3} key={product.id}>
+                <ProductCard product={product} />
+              </Col>
+            ))}
         </Row>
       </Container>
     </Layout>
