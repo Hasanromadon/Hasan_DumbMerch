@@ -18,7 +18,7 @@ exports.register = async (req, res) => {
 
   const { error } = schema.validate(data);
 
-  if (error) handleErrorValidate(error);
+  if (error) return handleErrorValidate(error, res);
 
   // check email
   const userEmail = await users.findOne({

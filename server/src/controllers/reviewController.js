@@ -1,4 +1,9 @@
-const { product_reviews, transactions } = require('../../models');
+const {
+  product_reviews,
+  transactions,
+  transaction_details,
+  products,
+} = require('../../models');
 const {
   handleErrorSever,
   handleErrorValidate,
@@ -7,16 +12,34 @@ const Joi = require('joi');
 
 // get all categories
 exports.getAllReviews = async (req, res) => {
+  const { id } = req.user;
   try {
-    const data = await product_reviews.findAll({
+    let data = await product_reviews.findAll({
       attributes: {
         exclude: ['updatedAt'],
       },
+      include: [
+        {
+          model: products,
+          as: 'product_detail',
+          attributes: ['id', 'name', 'image'],
+        },
+      ],
+      where: {
+        id_user: id,
+      },
+
+      order: [['createdAt', 'DESC']],
     });
 
+    let reviewData = JSON.parse(JSON.stringify(data));
+    reviewData = reviewData.map((review) => {
+      review.product_detail.image = `${process.env.PATH_FILE}/products/${review.product_detail.image}`;
+      return review;
+    });
     res.send({
       status: 'success',
-      data,
+      data: reviewData,
     });
   } catch (error) {
     console.log(error);
@@ -55,26 +78,33 @@ exports.addReview = async (req, res) => {
   const data = req.body;
   data.id_user = id;
 
-  const schema = Joi.object({
-    id_transaction: Joi.number().required(),
-    id_product: Joi.number().required(),
-    id_user: Joi.number().required(),
-    rating: Joi.number().greater(0).less(6).required(),
-    review: Joi.string().min(5).max(200).required(),
-  });
-
-  const { error } = schema.validate(req.body);
-  if (error) return handleErrorValidate(error, res);
+  const productData = data.id_product.map((id) => ({
+    id_product: id,
+    id_transaction: data.id_transaction,
+    id_user: id,
+    rating: data.rating,
+    review: data.review,
+  }));
 
   try {
-    const reviewData = await product_reviews.create(data);
+    const reviewData = await product_reviews.bulkCreate(productData);
     await transactions.update(
       {
         isReview: true,
       },
       {
         where: {
-          id: req.body.id_transaction,
+          id: data.id_transaction,
+        },
+      }
+    );
+    await transaction_details.update(
+      {
+        isReview: true,
+      },
+      {
+        where: {
+          id_order: data.id_transaction,
         },
       }
     );

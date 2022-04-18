@@ -14,51 +14,107 @@ const Joi = require('joi');
 const { Op, literal } = require('sequelize');
 exports.getProducts = async (req, res) => {
   const { page, size } = req.pagination;
+  console.log('CATEGORY ======> ', req.query.category);
+
+  let category = [];
+
+  if (req.query.category) {
+    category = req.query?.category.map((cat) => +cat);
+  }
+  console.log('CATEGORY ======> ', category);
 
   try {
     console.log(req.query.name);
-    let rawProductsData = await products.findAndCountAll({
-      include: [
-        {
-          model: categories,
-          as: 'categories',
-          attributes: ['name'],
-          where: {
-            id: {
-              [Op.like]: `%${req.query.category || ''}%`,
+    let rawProductsData;
+
+    if (category.length === 0) {
+      rawProductsData = await products.findAndCountAll({
+        include: [
+          {
+            model: categories,
+            as: 'categories',
+            attributes: ['name'],
+            where: {
+              id: {
+                [Op.like]: `%${req.query.category || ''}%`,
+              },
+            },
+            require: true,
+            through: {
+              model: product_categories,
+              as: 'bridge',
+              attributes: [],
             },
           },
-          require: true,
-          through: {
-            model: product_categories,
-            as: 'bridge',
-            attributes: [],
+          {
+            model: product_reviews,
+            as: 'reviews',
+            attributes: ['rating'],
+          },
+        ],
+        attributes: {
+          exclude: ['createdAt', 'updatedAt'],
+        },
+        where: {
+          name: {
+            [Op.like]: `%${req.query.name || ''}%`,
+          },
+          price: {
+            [Op.and]: {
+              [Op.gte]: req.query.minPrice || 0,
+              [Op.lte]: req.query.maxPrice || 1000000000,
+            },
           },
         },
-        {
-          model: product_reviews,
-          as: 'reviews',
-          attributes: ['rating'],
+        limit: size,
+        offset: page * size,
+        order: [['id', 'DESC']],
+      });
+    } else {
+      rawProductsData = await products.findAndCountAll({
+        include: [
+          {
+            model: categories,
+            as: 'categories',
+            attributes: ['name'],
+            where: {
+              id: {
+                [Op.in]: category,
+              },
+            },
+            require: true,
+            through: {
+              model: product_categories,
+              as: 'bridge',
+              attributes: [],
+            },
+          },
+          {
+            model: product_reviews,
+            as: 'reviews',
+            attributes: ['rating'],
+          },
+        ],
+        attributes: {
+          exclude: ['createdAt', 'updatedAt'],
         },
-      ],
-      attributes: {
-        exclude: ['createdAt', 'updatedAt'],
-      },
-      where: {
-        name: {
-          [Op.like]: `%${req.query.name || ''}%`,
-        },
-        price: {
-          [Op.and]: {
-            [Op.gte]: req.query.minPrice || 0,
-            [Op.lte]: req.query.maxPrice || 1000000000,
+        where: {
+          name: {
+            [Op.like]: `%${req.query.name || ''}%`,
+          },
+          price: {
+            [Op.and]: {
+              [Op.gte]: req.query.minPrice || 0,
+              [Op.lte]: req.query.maxPrice || 1000000000,
+            },
           },
         },
-      },
-      limit: size,
-      offset: page * size,
-      order: [['id', 'DESC']],
-    });
+        limit: size,
+        offset: page * size,
+        order: [['id', 'DESC']],
+      });
+    }
+
     let productsData = rawProductsData.rows.map((item) => {
       item.image = `${process.env.PATH_FILE}/products/${item.image}`;
       return item;

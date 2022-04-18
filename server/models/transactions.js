@@ -14,6 +14,19 @@ module.exports = (sequelize, DataTypes) => {
           name: 'id_order',
         },
       });
+      transactions.hasMany(models.product_reviews, {
+        as: 'reviews',
+        foreignKey: {
+          name: 'id_transaction',
+        },
+      });
+
+      transactions.belongsTo(models.users, {
+        as: 'buyer',
+        foreignKey: {
+          name: 'id_buyer',
+        },
+      });
     }
   }
   transactions.init(
@@ -21,7 +34,11 @@ module.exports = (sequelize, DataTypes) => {
       invoice_number: DataTypes.STRING,
       id_buyer: DataTypes.INTEGER,
       id_seller: DataTypes.INTEGER,
-      tracking_number: DataTypes.STRING,
+      tracking_number: {
+        type: DataTypes.STRING,
+        defaultValue: null,
+      },
+
       status: DataTypes.STRING,
       isReview: {
         type: DataTypes.BOOLEAN,

@@ -4,15 +4,18 @@ const router = express.Router();
 const {
   addTransaction,
   getTransactions,
-  updateTransaction,
   getTransaction,
   deleteTransaction,
   transactionReportCurrentMonth,
   transactionReportAll,
   transactionReportByMonth,
+  notification,
+  updateTransaction,
+  reviewTransactions,
 } = require('../controllers/transactionController');
 const { auth } = require('../middlewares/auth');
 
+router.post('/notification', notification);
 router.use(auth());
 router.route('/').get(getTransactions).post(addTransaction);
 router.get(
@@ -20,10 +23,13 @@ router.get(
   auth('admin'),
   transactionReportCurrentMonth
 );
+router.patch('/:id', auth(), updateTransaction);
+router.get('/reviews/:id', auth(), reviewTransactions);
 router.get('/report/all', auth('admin'), transactionReportAll);
 router.get('/report/months', auth('admin'), transactionReportByMonth);
 router.route('/:id').get(getTransaction);
-router.patch('/:id', auth('admin'), updateTransaction);
 router.delete('/:id', auth('admin'), deleteTransaction);
+
+// review
 
 module.exports = router;

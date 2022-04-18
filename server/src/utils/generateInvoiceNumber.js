@@ -1,4 +1,4 @@
-exports.generateInvoiceNumber = (idTransaction) => {
+exports.generateInvoiceNumber = () => {
   const romanNumber = [
     'I',
     'II',
@@ -17,5 +17,7 @@ exports.generateInvoiceNumber = (idTransaction) => {
   let month = d.getMonth();
   let year = d.getFullYear();
 
-  return `${idTransaction + 1}/INV/${romanNumber[month]}/${year}`;
+  return `${parseInt(Math.random().toString().slice(3, 8)) + 1}/INV/${
+    romanNumber[month]
+  }/${year}`;
 };

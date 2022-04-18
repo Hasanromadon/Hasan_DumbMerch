@@ -14,6 +14,12 @@ module.exports = (sequelize, DataTypes) => {
           name: 'id_user',
         },
       });
+      product_reviews.belongsTo(models.products, {
+        as: 'product_detail',
+        foreignKey: {
+          name: 'id_user',
+        },
+      });
     }
   }
   product_reviews.init(
